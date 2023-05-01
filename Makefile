@@ -8,10 +8,12 @@ BUILDER_IMAGE=cvbarros/terraform-provider-teamcity-builder
 default: test
 
 build:
-	GO111MODULE=on go build -o ./bin/terraform-provider-teamcity_${VERSION}
+	# GO111MODULE=on go build -o ./bin/terraform-provider-teamcity_${VERSION}
+	GO111MODULE=on go build -o ./bin/terraform-provider-teamcity
 
 install: build
-	cp ./bin/terraform-provider-teamcity_${VERSION} ~/.terraform.d/plugins/
+	# cp ./bin/terraform-provider-teamcity_${VERSION} ~/.terraform.d/plugins/
+	cp ./bin/terraform-provider-teamcity ~/.terraform.d/plugins/$(shell go env GOHOSTOS)_$(shell go env GOHOSTARCH)
 
 clean:
 	rm -rf ./bin

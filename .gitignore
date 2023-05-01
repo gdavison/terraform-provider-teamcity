@@ -32,3 +32,6 @@ data_dir/
 
 #Local Testing environment
 .test.env
+
+bin/
+

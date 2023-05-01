@@ -2,15 +2,16 @@ package teamcity
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 	"strings"
 
 	api "github.com/cvbarros/go-teamcity/teamcity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/cvbarros/terraform-provider-teamcity/internal/hashcode"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceBuildConfig() *schema.Resource {
@@ -23,7 +24,7 @@ func resourceBuildConfig() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 
-		CustomizeDiff: func(diff *schema.ResourceDiff, v interface{}) error {
+		CustomizeDiff: func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {
 			if diff.HasChange("settings") {
 				o, n := diff.GetChange("settings")
 
@@ -336,11 +337,6 @@ func resourceBuildConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	if changed {
 		_, err := client.BuildTypes.Update(dt)
-		d.SetPartial("settings")
-		d.SetPartial("description")
-		d.SetPartial("config_params")
-		d.SetPartial("sys_params")
-		d.SetPartial("env_params")
 		if err != nil {
 			return err
 		}
@@ -357,7 +353,6 @@ func resourceBuildConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			log.Printf("[DEBUG] resourceBuildConfigUpdate: attached vcsRoot '%v' to build configuration", toAttach.ID)
 		}
-		d.SetPartial("vcs_root")
 	}
 
 	if d.HasChange("step") {
@@ -388,7 +383,6 @@ func resourceBuildConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 				}
 			}
 		}
-		d.SetPartial("step")
 	}
 
 	if d.HasChange("templates") {
@@ -409,7 +403,6 @@ func resourceBuildConfigUpdate(d *schema.ResourceData, meta interface{}) error {
 			}
 			log.Printf("[DEBUG] resourceBuildConfigUpdate: detached template '%v' from build configuration", r)
 		}
-		d.SetPartial("templates")
 	}
 
 	d.Partial(false)
@@ -490,11 +483,13 @@ func resourceBuildConfigRead(d *schema.ResourceData, meta interface{}) error {
 	if steps != nil && len(steps) > 0 {
 		var stepsToSave []map[string]interface{}
 		for _, el := range steps {
-			l, err := flattenBuildStep(el)
-			if err != nil {
-				return err
+			if el != nil {
+				l, err := flattenBuildStep(el)
+				if err != nil {
+					return err
+				}
+				stepsToSave = append(stepsToSave, l)
 			}
-			stepsToSave = append(stepsToSave, l)
 		}
 
 		if err := d.Set("step", stepsToSave); err != nil {
@@ -1036,7 +1031,7 @@ func resourceBuildConfigInstanceResourceV0() *schema.Resource {
 	}
 }
 
-func resourceBuildConfigInstanceStateUpgradeV0(rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+func resourceBuildConfigInstanceStateUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
 	if raw, ok := rawState["steps"]; ok {
 		s := raw.(*schema.Set)
 		list := s.List()

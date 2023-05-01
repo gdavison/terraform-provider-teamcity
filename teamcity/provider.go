@@ -3,12 +3,11 @@ package teamcity
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-//Provider is the plugin entry point
-func Provider() terraform.ResourceProvider {
+// Provider is the plugin entry point
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
 			"teamcity_artifact_dependency":                resourceArtifactDependency(),

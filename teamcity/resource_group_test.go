@@ -2,14 +2,16 @@ package teamcity_test
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"strings"
 	"testing"
 
-	api "github.com/cvbarros/go-teamcity/teamcity"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
 	"hash/crc32"
 	"regexp"
+
+	api "github.com/cvbarros/go-teamcity/teamcity"
 )
 
 func TestAccGroupCreate_Basic(t *testing.T) {

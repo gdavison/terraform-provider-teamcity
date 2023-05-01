@@ -6,22 +6,21 @@ import (
 
 	"github.com/cvbarros/terraform-provider-teamcity/teamcity"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-var testAccProviders map[string]terraform.ResourceProvider
+var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
 
 func init() {
-	testAccProvider = teamcity.Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
+	testAccProvider = teamcity.Provider()
+	testAccProviders = map[string]*schema.Provider{
 		"teamcity": testAccProvider,
 	}
 }
 
 func TestProvider(t *testing.T) {
-	if err := teamcity.Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := teamcity.Provider().InternalValidate(); err != nil {
 		t.Fatalf("Error: %s", err)
 	}
 }
