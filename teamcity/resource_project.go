@@ -1,7 +1,6 @@
 package teamcity
 
 import (
-	"fmt"
 	"log"
 
 	api "github.com/cvbarros/go-teamcity/teamcity"
@@ -129,9 +128,9 @@ func resourceProjectRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
-	log.Print(fmt.Sprintf("[DEBUG]: resourceProjectDelete - Destroying project %v", d.Id()))
+	log.Printf("[DEBUG]: resourceProjectDelete - Destroying project %v", d.Id())
 	err := client.Projects.Delete(d.Id())
-	log.Print(fmt.Sprintf("[INFO]: resourceProjectDelete - Destroyed project %v", d.Id()))
+	log.Printf("[INFO]: resourceProjectDelete - Destroyed project %v", d.Id())
 	return err
 }
 

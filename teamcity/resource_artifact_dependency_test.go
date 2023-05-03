@@ -175,31 +175,6 @@ func TestAccTeamcityArtifactDependency_ConfigErrorForRevision(t *testing.T) {
 	})
 }
 
-func testAccCheckDependencySourceBuildType(n string, dep *api.ArtifactDependency) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		key := "source_build_config_id"
-		value := dep.SourceBuildTypeID
-
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
-		if v, ok := rs.Primary.Attributes[key]; !ok || v != value {
-			if !ok {
-				return fmt.Errorf("%s: Attribute '%s' not found", n, key)
-			}
-
-			return fmt.Errorf(
-				"%s: Attribute '%s' expected %#v, got %#v",
-				n,
-				key,
-				value,
-				v)
-		}
-		return nil
-	}
-}
-
 func testAccCheckTeamcityArtifactDependencyDestroy(bt *string, resourceType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*api.Client)

@@ -92,21 +92,6 @@ func buildTriggerDestroyHelper(s *terraform.State, bt *string, client *api.Clien
 	return nil
 }
 
-func testAccCheckTeamcityBuildTriggerRemoved(buildTypeId *string, t *api.Trigger) resource.TestCheckFunc {
-	return func(S *terraform.State) error {
-		client := testAccProvider.Meta().(*api.Client)
-
-		_, err := client.TriggerService(*buildTypeId).GetByID((*t).ID())
-		if err != nil {
-			if strings.Contains(err.Error(), "404") {
-				return nil //It's ok, removed
-			}
-		}
-
-		return fmt.Errorf("expected resource with id: %s to be removed, but it wasn't", (*t).ID())
-	}
-}
-
 func testAccCheckTeamcityBuildTriggerExists(n string, bt *string, t *api.Trigger, exists bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		client := testAccProvider.Meta().(*api.Client)

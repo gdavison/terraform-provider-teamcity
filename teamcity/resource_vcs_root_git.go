@@ -365,9 +365,9 @@ func resourceVcsRootGitRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceVcsRootGitDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
-	log.Print(fmt.Sprintf("[DEBUG]: resourceVcsRootGitDelete - Destroying vcs root %v", d.Id()))
+	log.Printf("[DEBUG]: resourceVcsRootGitDelete - Destroying vcs root %v", d.Id())
 	err := client.VcsRoots.Delete(d.Id())
-	log.Print(fmt.Sprintf("[INFO]: resourceVcsRootGitDelete - Destroyed vcs root %v", d.Id()))
+	log.Printf("[INFO]: resourceVcsRootGitDelete - Destroyed vcs root %v", d.Id())
 	return err
 }
 

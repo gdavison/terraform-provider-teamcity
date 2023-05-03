@@ -465,7 +465,7 @@ func resourceBuildConfigRead(d *schema.ResourceData, meta interface{}) error {
 
 	vcsRoots := dt.VcsRootEntries
 
-	if vcsRoots != nil && len(vcsRoots) > 0 {
+	if len(vcsRoots) > 0 {
 		var vcsToSave []map[string]interface{}
 		for _, el := range vcsRoots {
 			m := make(map[string]interface{})
@@ -483,7 +483,7 @@ func resourceBuildConfigRead(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	if steps != nil && len(steps) > 0 {
+	if len(steps) > 0 {
 		var stepsToSave []map[string]interface{}
 		for _, el := range steps {
 			if el != nil {
