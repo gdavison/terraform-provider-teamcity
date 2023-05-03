@@ -15,7 +15,7 @@ func resourceFeatureGolang() *schema.Resource {
 		Read:   resourceFeatureGolangRead,
 		Delete: resourceFeatureGolangDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

@@ -17,7 +17,7 @@ func resourceVcsRootGit() *schema.Resource {
 		Update: resourceVcsRootGitCreateUpdate,
 		Delete: resourceVcsRootGitDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

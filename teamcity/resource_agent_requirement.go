@@ -16,7 +16,7 @@ func resourceAgentRequirement() *schema.Resource {
 		Read:   resourceAgentRequirementRead,
 		Delete: resourceAgentRequirementDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

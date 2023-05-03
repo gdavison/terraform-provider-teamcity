@@ -15,7 +15,7 @@ func resourceArtifactDependency() *schema.Resource {
 		Read:   resourceArtifactDependencyRead,
 		Delete: resourceArtifactDependencyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

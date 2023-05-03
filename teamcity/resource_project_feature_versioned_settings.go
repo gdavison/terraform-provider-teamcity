@@ -17,7 +17,7 @@ func resourceProjectFeatureVersionedSettings() *schema.Resource {
 		Update: resourceProjectFeatureVersionedSettingsUpdate,
 		Delete: resourceProjectFeatureVersionedSettingsDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

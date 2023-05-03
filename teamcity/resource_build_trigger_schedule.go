@@ -15,7 +15,7 @@ func resourceBuildTriggerSchedule() *schema.Resource {
 		Read:   resourceBuildTriggerScheduleRead,
 		Delete: resourceBuildTriggerScheduleDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

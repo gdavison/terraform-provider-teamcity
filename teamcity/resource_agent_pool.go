@@ -18,7 +18,7 @@ func resourceAgentPool() *schema.Resource {
 		Read:   resourceAgentPoolRead,
 		Delete: resourceAgentPoolDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

@@ -18,7 +18,7 @@ func resourceFeatureCommitStatusPublisher() *schema.Resource {
 		Read:   resourceFeatureCommitStatusPublisherRead,
 		Delete: resourceFeatureCommitStatusPublisherDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

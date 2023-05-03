@@ -14,7 +14,7 @@ func resourceSnapshotDependency() *schema.Resource {
 		Read:   resourceSnapshotDependencyRead,
 		Delete: resourceSnapshotDependencyDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

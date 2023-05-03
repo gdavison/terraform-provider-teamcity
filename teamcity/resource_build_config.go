@@ -21,7 +21,7 @@ func resourceBuildConfig() *schema.Resource {
 		Update: resourceBuildConfigUpdate,
 		Delete: resourceBuildConfigDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		CustomizeDiff: func(_ context.Context, diff *schema.ResourceDiff, v interface{}) error {

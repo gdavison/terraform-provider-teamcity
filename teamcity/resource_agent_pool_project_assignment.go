@@ -16,7 +16,7 @@ func resourceAgentPoolProjectAssignment() *schema.Resource {
 		Read:   resourceAgentPoolProjectAssignmentRead,
 		Delete: resourceAgentPoolProjectAssignmentDelete,
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
