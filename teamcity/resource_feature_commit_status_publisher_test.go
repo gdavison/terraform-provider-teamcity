@@ -12,7 +12,7 @@ import (
 
 func TestAccTeamcityFeatureCommitStatusPublisher_Github(t *testing.T) {
 	resName := "teamcity_feature_commit_status_publisher.test"
-	var out api.BuildFeature
+	var f1, f2 api.BuildFeature
 	var bc api.BuildType
 
 	resource.Test(t, resource.TestCase{
@@ -24,50 +24,45 @@ func TestAccTeamcityFeatureCommitStatusPublisher_Github(t *testing.T) {
 				Config: TestAccBuildFeatureCommitStatusPublisher_GithubPassword,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBuildConfigExists("teamcity_build_config.config", &bc),
-					testAccCheckBuildFeatureExists(resName, &bc.ID, &out),
+					testAccCheckBuildFeatureExists(resName, &bc.ID, &f1),
 					resource.TestCheckResourceAttr(resName, "publisher", "github"),
-					resource.TestCheckResourceAttr(resName, "github.3735060251.auth_type", "password"),
-					resource.TestCheckResourceAttr(resName, "github.3735060251.host", "https://api.github.com"),
-					resource.TestCheckResourceAttr(resName, "github.3735060251.username", "bob"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccTeamcityFeatureCommitStatusPublisher_GithubUpdate(t *testing.T) {
-	resName := "teamcity_feature_commit_status_publisher.test"
-	var out api.BuildFeature
-	var bc api.BuildType
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckBuildFeatureDestroy(&bc.ID),
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: TestAccBuildFeatureCommitStatusPublisher_GithubPassword,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckBuildConfigExists("teamcity_build_config.config", &bc),
-					testAccCheckBuildFeatureExists(resName, &bc.ID, &out),
-					resource.TestCheckResourceAttr(resName, "publisher", "github"),
-					resource.TestCheckResourceAttr(resName, "github.3735060251.auth_type", "password"),
-					resource.TestCheckResourceAttr(resName, "github.3735060251.host", "https://api.github.com"),
-					resource.TestCheckResourceAttr(resName, "github.3735060251.username", "bob"),
+					resource.TestCheckResourceAttr(resName, "github.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(resName, "github.*", map[string]string{
+						"auth_type": "password",
+						"host":      "https://api.github.com",
+						"username":  "bob",
+					}),
 				),
 			},
 			resource.TestStep{
 				Config: TestAccBuildFeatureCommitStatusPublisher_GithubPasswordUpdated,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckBuildConfigExists("teamcity_build_config.config", &bc),
-					testAccCheckBuildFeatureExists(resName, &bc.ID, &out),
+					testAccCheckBuildFeatureExists(resName, &bc.ID, &f2),
+					testAccCheckBuildFeatureRecreated(&f1, &f2),
 					resource.TestCheckResourceAttr(resName, "publisher", "github"),
-					resource.TestCheckResourceAttr(resName, "github.3764292600.host", "https://api.github.com/v3"),
-					resource.TestCheckResourceAttr(resName, "github.3764292600.username", "bob_updated"),
+					resource.TestCheckResourceAttr(resName, "github.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(resName, "github.*", map[string]string{
+						"auth_type": "password",
+						"host":      "https://api.github.com/v3",
+						"username":  "bob_updated",
+					}),
 				),
 			},
 		},
 	})
+}
+
+func testAccCheckBuildFeatureRecreated(a, b *api.BuildFeature) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		aID := (*a).ID()
+		bID := (*b).ID()
+
+		if aID == bID {
+			return fmt.Errorf("Build Feature was not recreated")
+		}
+		return nil
+	}
 }
 
 func testAccCheckBuildFeatureDestroy(bt *string) resource.TestCheckFunc {

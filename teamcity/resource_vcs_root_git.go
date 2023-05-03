@@ -1,13 +1,11 @@
 package teamcity
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"strings"
 
 	api "github.com/cvbarros/go-teamcity/teamcity"
-	"github.com/cvbarros/terraform-provider-teamcity/internal/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -86,7 +84,7 @@ func resourceVcsRootGit() *schema.Resource {
 				Description:  "Defines a way TeamCity binds VCS changes to the user. Changing username style will affect only newly collected changes. Old changes will continue to be stored with the style that was active at the time of collecting changes. Allowed values: 'userid', 'author_name', 'author_email', 'author_full'",
 			},
 			"auth": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
 				Description: "Authentication configuration for VCS Root. If not specified, defaults to anonymous auth.",
@@ -122,10 +120,9 @@ func resourceVcsRootGit() *schema.Resource {
 						},
 					},
 				},
-				Set: gitVcsAuthHash,
 			},
 			"agent": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
 				Description: "Agent settings for the VCS Root",
@@ -393,7 +390,7 @@ func expandGitVcsRootOptions(d *schema.ResourceData) (*api.GitVcsRootOptions, er
 
 	if a, ok := d.GetOk("auth"); ok {
 		// Only 1 max permitted
-		auth := a.(*schema.Set).List()[0].(map[string]interface{})
+		auth := a.([]interface{})[0].(map[string]interface{})
 
 		if authType != api.GitAuthMethodAnonymous {
 			username = auth["username"].(string)
@@ -441,7 +438,7 @@ func expandGitVcsAgentSettings(d *schema.ResourceData) (*api.GitAgentSettings, e
 		return nil, nil
 	}
 
-	agent := v.(*schema.Set).List()[0].(map[string]interface{})
+	agent := v.([]interface{})[0].(map[string]interface{})
 
 	if v, ok = agent["git_path"]; ok {
 		gitPath = v.(string)
@@ -513,7 +510,7 @@ func flattenGitVcsRootAuth(d *schema.ResourceData, dt *api.GitVcsRootOptions) ([
 
 	//Set back password if contained in state
 	if auth, ok := d.GetOk("auth"); ok {
-		authSet := auth.(*schema.Set).List()[0].(map[string]interface{})
+		authSet := auth.([]interface{})[0].(map[string]interface{})
 		if pwd, ok := authSet["password"]; ok {
 			m["password"] = pwd.(string)
 		}
@@ -532,7 +529,7 @@ func getGitAuthType(d *schema.ResourceData) (api.GitAuthMethod, error) {
 	}
 
 	// Only 1 max permitted
-	auth := authConfig.(*schema.Set).List()[0].(map[string]interface{})
+	auth := authConfig.([]interface{})[0].(map[string]interface{})
 	authType := auth["type"].(string)
 
 	switch authType {
@@ -570,16 +567,6 @@ func readAuthTypeFromAuthMethod(vcsOpt *api.GitVcsRootOptions) (string, string) 
 	}
 
 	return "", ""
-}
-
-func gitVcsAuthHash(v interface{}) int {
-	var buf bytes.Buffer
-	m := v.(map[string]interface{})
-	buf.WriteString(fmt.Sprintf("%s-", m["type"].(string)))
-	hash := hashcode.String(buf.String())
-
-	log.Printf("[DEBUG] GitVcs Auth Hash: %d", hash)
-	return hash
 }
 
 func reverseMap(m map[string]string) map[string]string {

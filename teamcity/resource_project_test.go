@@ -21,7 +21,7 @@ func TestAccTeamcityProject_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccTeamcityProjectConfig,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTeamcityProjectExists(resName, &p),
 					resource.TestCheckResourceAttr(resName, "name", "testproj"),
 				),
@@ -42,7 +42,7 @@ func TestAccTeamcityProject_Full(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccTeamcityProjectFull,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTeamcityProjectExists(resName, &p),
 					resource.TestCheckResourceAttr(resName, "name", "test_project"),
 					resource.TestCheckResourceAttr(resName, "description", "Test Project"),
@@ -76,7 +76,7 @@ func TestAccTeamcityProject_Parent(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccTeamcityProjectParent,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTeamcityProjectExists(parentRes, &parent),
 					testAccCheckTeamcityProjectExists(childRes, &child),
 					resource.TestCheckResourceAttrPtr(childRes, "parent_id", &parent.ID),
@@ -96,13 +96,16 @@ func TestAccTeamcityProject_Update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTeamcityProjectFull,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTeamcityProjectExists(resName, &p),
 					resource.TestCheckResourceAttr(resName, "description", "Test Project"),
+					resource.TestCheckResourceAttr(resName, "config_params.%", "2"),
 					resource.TestCheckResourceAttr(resName, "config_params.param1", "config_value1"),
 					resource.TestCheckResourceAttr(resName, "config_params.param2", "config_value2"),
+					resource.TestCheckResourceAttr(resName, "env_params.%", "2"),
 					resource.TestCheckResourceAttr(resName, "env_params.param3", "env_value1"),
 					resource.TestCheckResourceAttr(resName, "env_params.param4", "env_value2"),
+					resource.TestCheckResourceAttr(resName, "sys_params.%", "2"),
 					resource.TestCheckResourceAttr(resName, "sys_params.param5", "sys_value1"),
 					resource.TestCheckResourceAttr(resName, "sys_params.param6", "sys_value2"),
 					testAccCheckProjectParameter(&p, api.ParameterTypes.Configuration, "param1", "config_value1"),
@@ -115,12 +118,14 @@ func TestAccTeamcityProject_Update(t *testing.T) {
 			},
 			{
 				Config: testAccTeamcityProjectFullUpdated,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTeamcityProjectExists(resName, &p),
-					resource.TestCheckResourceAttr(resName, "description", "updated project"),
 					resource.TestCheckResourceAttr(resName, "description", "Test Project Updated"),
+					resource.TestCheckResourceAttr(resName, "config_params.%", "2"),
 					resource.TestCheckResourceAttr(resName, "config_params.param1", "config_value1"),
 					resource.TestCheckResourceAttr(resName, "config_params.param2", "config_value2"),
+					resource.TestCheckResourceAttr(resName, "env_params.%", "0"),
+					resource.TestCheckResourceAttr(resName, "sys_params.%", "0"),
 					testAccCheckProjectParameter(&p, api.ParameterTypes.Configuration, "param1", "config_value1"),
 					testAccCheckProjectParameter(&p, api.ParameterTypes.Configuration, "param2", "config_value2"),
 				),

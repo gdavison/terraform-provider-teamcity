@@ -5,12 +5,15 @@ We'd more than happy to accept all forms of contribution. Those may come in form
 ## Reporting issues ##
 
 ### Problems and/or bugs ###
+
 Be descriptive about your issue. Specify which TeamCity, Golang and OS version you are running and provide helpful information through logs and/or debug information.
 
 ### Feature Requests ###
+
 Feature requests are welcome, still, try to be as specific as possible about what the intended feature should be. Then, after proposing the feature, be open to discussion and patient regarding it's implementation.
 
 ## Developing ##
+
 If you want to contribute in form of development, you may fork this repo, clone it locally then create a branch to work on. [This link](https://opensource.guide/how-to-contribute/#opening-a-pull-request) has helpful information to get started.
 
 You'll first need [Go](https://golang.org/doc/install) installed on your machine (version 1.12+ is *required*).
@@ -24,6 +27,7 @@ Seen an issue that you want to tackle? Make sure to comment indicating that inte
 Try to maintain the code conventions, or spot where they are inconsistent across the codebase, whenever possible. When submitting your work, if you would like to propose an enhancement to existing conventions, do it in a separate issue for discussion, other than the issued worked on.
 
 ### Running TeamCity Locally ###
+
 TeamCity can be run with the official docker images from JetBrains. We leverage that by implementing full integration tests with every feature.
 You are expected to fully run these tests and make sure your changes do not break existing functionality.
 
@@ -32,6 +36,8 @@ In order to run it locally you can first start a warmed-up TeamCity container, f
 ```bash
 $ ./integration_tests/start_teamcity.sh
 ```
+
+Note that this does not work on Apple Silicon Macs.
 
 This will start the needed dependencies to run all tests in your local machine as per [this configuration](./integration_tests/docker-compose.yml). After your environment is running, you may set the `TEAMCITY_ADDR`, `TEAMCITY_USER` and `TEAMCITY_PASSWORD` environment variables to the corresponding values (defaults to `admin`, `admin`, `http://127.0.0.1:8112`, respectively) and `TF_ACC` environment variable to `1` to enable Terraform acceptance tests:
 
@@ -45,7 +51,7 @@ $ export TF_ACC=1
 To run tests:
 
 ```bash
-go test -v -timeout 180s ./...
+go test -v -timeout 20m ./...
 ```
 
 If using an editor such as **Visual Studio Code** with `Go` integration, you can make your development easier by configuring your workspace settings:
