@@ -57,7 +57,10 @@ func resourceBuildConfig() *schema.Resource {
 					}
 					if setComputed {
 						computed := flattenBuildConfigOptionsRaw(nsi)
-						diff.SetNew("settings", []map[string]interface{}{computed})
+						err := diff.SetNew("settings", []map[string]interface{}{computed})
+						if err != nil {
+							return err
+						}
 					}
 				}
 			}
