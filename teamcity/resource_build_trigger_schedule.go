@@ -234,34 +234,34 @@ func resourceBuildTriggerScheduleDelete(d *schema.ResourceData, meta interface{}
 func expandTriggerScheduleOptions(d *schema.ResourceData) (*api.TriggerScheduleOptions, error) {
 	opt := api.NewTriggerScheduleOptions()
 
-	if v, ok := d.GetOkExists("queue_optimization"); ok {
+	if v, ok := d.GetOk("queue_optimization"); ok {
 		opt.QueueOptimization = v.(bool)
 	}
-	if v, ok := d.GetOkExists("on_all_compatible_agents"); ok {
+	if v, ok := d.GetOk("on_all_compatible_agents"); ok {
 		opt.BuildOnAllCompatibleAgents = v.(bool)
 	}
-	if v, ok := d.GetOkExists("with_pending_changes_only"); ok {
+	if v, ok := d.GetOk("with_pending_changes_only"); ok {
 		opt.BuildWithPendingChangesOnly = v.(bool)
 	}
-	if v, ok := d.GetOkExists("promote_watched_build"); ok {
+	if v, ok := d.GetOk("promote_watched_build"); ok {
 		opt.PromoteWatchedBuild = v.(bool)
 	}
-	if v, ok := d.GetOkExists("enforce_clean_checkout"); ok {
+	if v, ok := d.GetOk("enforce_clean_checkout"); ok {
 		opt.EnforceCleanCheckout = v.(bool)
 	}
-	if v, ok := d.GetOkExists("enforce_clean_checkout_dependencies"); ok {
+	if v, ok := d.GetOk("enforce_clean_checkout_dependencies"); ok {
 		opt.EnforceCleanCheckoutForDependencies = v.(bool)
 	}
-	if v, ok := d.GetOkExists("only_if_watched_changes"); ok {
+	if v, ok := d.GetOk("only_if_watched_changes"); ok {
 		opt.TriggerIfWatchedBuildChanges = v.(bool)
 	}
-	if v, ok := d.GetOkExists("watched_build_config_id"); ok {
+	if v, ok := d.GetOk("watched_build_config_id"); ok {
 		opt.RevisionRuleSourceBuildID = v.(string)
 	}
-	if v, ok := d.GetOkExists("revision"); ok {
+	if v, ok := d.GetOk("revision"); ok {
 		opt.RevisionRule = api.ArtifactDependencyRevision(v.(string))
 	}
-	if v, ok := d.GetOkExists("watched_branch"); ok {
+	if v, ok := d.GetOk("watched_branch"); ok {
 		opt.RevisionRuleBuildBranch = v.(string)
 	}
 

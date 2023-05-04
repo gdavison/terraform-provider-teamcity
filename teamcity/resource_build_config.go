@@ -508,7 +508,7 @@ func validateBuildConfig(d *schema.ResourceData) error {
 		isTemplate := v.(bool)
 
 		if isTemplate {
-			if _, isSet := d.GetOkExists("description"); isSet {
+			if _, isSet := d.GetOk("description"); isSet {
 				return fmt.Errorf("'description' field is not supported for Build Configuration Templates. See issue https://youtrack.jetbrains.com/issue/TW-63617 for details")
 			}
 		}

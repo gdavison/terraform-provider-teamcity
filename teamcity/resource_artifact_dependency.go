@@ -159,7 +159,7 @@ func expandArtifactDependencyOptions(d *schema.ResourceData) (*api.ArtifactDepen
 	var pathRules []string
 	var revision string
 	var revisionType api.ArtifactDependencyRevision
-	if v, ok := d.GetOkExists("clean_destination"); ok {
+	if v, ok := d.GetOk("clean_destination"); ok {
 		cleanDestination = v.(bool)
 	}
 	if v, ok := d.GetOk("path_rules"); ok {
