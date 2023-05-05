@@ -30,3 +30,6 @@ clean_samples:
 
 fmt_samples:
 	terraform fmt -recursive examples/
+
+lint:
+	golangci-lint run
