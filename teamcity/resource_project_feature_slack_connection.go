@@ -10,14 +10,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceProjectFeatureSlackNotifier() *schema.Resource {
+func resourceProjectFeatureSlackConnection() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceProjectFeatureSlackNotifierCreate,
-		Read:   resourceProjectFeatureSlackNotifierRead,
-		Update: resourceProjectFeatureSlackNotifierUpdate,
-		Delete: resourceProjectFeatureSlackNotifierDelete,
+		Create: resourceProjectFeatureSlackConnectionCreate,
+		Read:   resourceProjectFeatureSlackConnectionRead,
+		Update: resourceProjectFeatureSlackConnectionUpdate,
+		Delete: resourceProjectFeatureSlackConnectionDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceProjectFeatureSlackNotifierImport,
+			StateContext: resourceProjectFeatureSlackConnectionImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -52,13 +52,13 @@ func resourceProjectFeatureSlackNotifier() *schema.Resource {
 	}
 }
 
-func resourceProjectFeatureSlackNotifierCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectFeatureSlackConnectionCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 
 	projectId := d.Get("project_id").(string)
 	service := client.ProjectFeatureService(projectId)
 
-	feature := api.NewProjectFeatureSlackNotifier(projectId, api.ProjectFeatureSlackNotifierOptions{
+	feature := api.NewProjectFeatureSlackConnection(projectId, api.ProjectFeatureSlackConnectionOptions{
 		ClientId:     d.Get("client_id").(string),
 		ClientSecret: d.Get("client_secret").(string),
 		DisplayName:  d.Get("display_name").(string),
@@ -72,10 +72,10 @@ func resourceProjectFeatureSlackNotifierCreate(d *schema.ResourceData, meta inte
 
 	d.SetId(created.ID())
 
-	return resourceProjectFeatureSlackNotifierRead(d, meta)
+	return resourceProjectFeatureSlackConnectionRead(d, meta)
 }
 
-func resourceProjectFeatureSlackNotifierUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectFeatureSlackConnectionUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 
 	projectId := d.Id()
@@ -126,10 +126,10 @@ func resourceProjectFeatureSlackNotifierUpdate(d *schema.ResourceData, meta inte
 		return err
 	}
 
-	return resourceProjectFeatureSlackNotifierRead(d, meta)
+	return resourceProjectFeatureSlackConnectionRead(d, meta)
 }
 
-func resourceProjectFeatureSlackNotifierRead(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectFeatureSlackConnectionRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 
 	projectId := d.Get("project_id").(string)
@@ -147,7 +147,7 @@ func resourceProjectFeatureSlackNotifierRead(d *schema.ResourceData, meta interf
 		return err
 	}
 
-	slackNotifier, ok := feature.(*api.ProjectFeatureSlackNotifier)
+	slackNotifier, ok := feature.(*api.ProjectFeatureSlackConnection)
 	if !ok {
 		return fmt.Errorf("Expected a VersionedSettings Feature but wasn't!")
 	}
@@ -160,7 +160,7 @@ func resourceProjectFeatureSlackNotifierRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceProjectFeatureSlackNotifierDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceProjectFeatureSlackConnectionDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 
 	projectId := d.Get("project_id").(string)
@@ -170,7 +170,6 @@ func resourceProjectFeatureSlackNotifierDelete(d *schema.ResourceData, meta inte
 	feature, err := service.GetByID(featureId)
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
-			// already gone
 			return nil
 		}
 
@@ -180,4 +179,18 @@ func resourceProjectFeatureSlackNotifierDelete(d *schema.ResourceData, meta inte
 	return service.Delete(feature.ID())
 }
 
-func resourceProjectFeatureSlackNotifierImportfunc(context.Context, *schema.ResourceData, interface{}) ([]*schema.ResourceData, error)
+func resourceProjectFeatureSlackConnectionImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	idParts := strings.Split(d.Id(), "/")
+	if len(idParts) != 2 {
+		return nil, fmt.Errorf("unexpected format for ID (%s), use: '<project-id>/<feature-id>'", d.Id())
+	}
+
+	projectId := idParts[0]
+	featureId := idParts[1]
+
+	d.Set("project_id", projectId)
+	d.SetId(featureId)
+
+	return []*schema.ResourceData{d}, nil
+
+}
