@@ -9,7 +9,7 @@ import (
 
 type testCase struct {
 	val             interface{}
-	f               schema.SchemaValidateFunc
+	f               schema.SchemaValidateFunc //nolint:staticcheck
 	expectedErr     *regexp.Regexp
 	expectedWarning *regexp.Regexp
 }
