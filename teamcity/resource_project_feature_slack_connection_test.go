@@ -43,6 +43,50 @@ func TestAccProjectFeatureSlackConnection_Basic(t *testing.T) {
 	})
 }
 
+func TestAccProjectFeatureSlackConnection_Update(t *testing.T) {
+	resourceName := "teamcity_project_feature_slack_notifier.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckProjectFeatureSlackConnectionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccProjectFeatureSlackConnectionBasicConfig(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckProjectFeatureSlackConnectionExists(resourceName),
+					resource.TestCheckResourceAttrPair(resourceName, "project_id", "teamcity_project.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "client_id", "abcd.1234"),
+					resource.TestCheckResourceAttr(resourceName, "client_secret", "xyz"),
+					resource.TestCheckResourceAttr(resourceName, "display_name", "Notifier"),
+					resource.TestCheckResourceAttr(resourceName, "token", "ABCD1234EFG"),
+				),
+			},
+			{
+				Config: testAccProjectFeatureSlackConnectionUpdatedConfig(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckProjectFeatureSlackConnectionExists(resourceName),
+					resource.TestCheckResourceAttrPair(resourceName, "project_id", "teamcity_project.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "client_id", "1234.abcd"),
+					resource.TestCheckResourceAttr(resourceName, "client_secret", "abc"),
+					resource.TestCheckResourceAttr(resourceName, "display_name", "Updated"),
+					resource.TestCheckResourceAttr(resourceName, "token", "XYZ789ABCD"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportStateIdFunc: testAccDeploymentImportStateIdFunc(resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"client_secret",
+					"token",
+				},
+			},
+		},
+	})
+}
+
 func testAccDeploymentImportStateIdFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -113,6 +157,19 @@ resource "teamcity_project_feature_slack_notifier" "test" {
   client_secret = "xyz"
   display_name  = "Notifier"
   token         = "ABCD1234EFG"
+}
+`)
+}
+
+func testAccProjectFeatureSlackConnectionUpdatedConfig() string {
+	return composeConfig(
+		testAccProjectFeatureSlackConnectionTemplate, `
+resource "teamcity_project_feature_slack_notifier" "test" {
+  project_id    = teamcity_project.test.id
+  client_id     = "1234.abcd"
+  client_secret = "abc"
+  display_name  = "Updated"
+  token         = "XYZ789ABCD"
 }
 `)
 }
