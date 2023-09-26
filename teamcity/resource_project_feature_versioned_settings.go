@@ -3,9 +3,11 @@ package teamcity
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	api "github.com/cvbarros/go-teamcity/teamcity"
+	"github.com/cvbarros/terraform-provider-teamcity/internal/types/nullable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -67,9 +69,10 @@ func resourceProjectFeatureVersionedSettings() *schema.Resource {
 			},
 
 			"enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:         nullable.TypeNullableBool,
+				Optional:     true,
+				Default:      "true",
+				ValidateFunc: nullable.ValidateTypeStringNullableBool,
 			},
 
 			"show_changes": {
@@ -94,15 +97,17 @@ func resourceProjectFeatureVersionedSettingsCreate(d *schema.ResourceData, meta 
 	service := client.ProjectFeatureService(projectId)
 
 	contextParametersRaw := d.Get("context_parameters").(map[string]interface{})
-	feature := api.NewProjectFeatureVersionedSettings(projectId, api.ProjectFeatureVersionedSettingsOptions{
+	opt := api.ProjectFeatureVersionedSettingsOptions{
 		BuildSettings:     api.VersionedSettingsBuildSettings(d.Get("build_settings").(string)),
 		ContextParameters: expandContextParameters(contextParametersRaw),
-		Enabled:           d.Get("enabled").(bool),
 		Format:            api.VersionedSettingsFormat(d.Get("format").(string)),
 		ShowChanges:       d.Get("show_changes").(bool),
 		UseRelativeIds:    d.Get("use_relative_ids").(bool),
 		VcsRootID:         d.Get("vcs_root_id").(string),
-	})
+	}
+	v, _, _ := nullable.Bool(d.Get("enabled").(string)).Value()
+	opt.Enabled = v
+	feature := api.NewProjectFeatureVersionedSettings(projectId, opt)
 
 	if v := d.Get("credentials_storage_type").(string); v == string(api.CredentialsStorageTypeCredentialsJSON) {
 		feature.Options.CredentialsStorageType = api.CredentialsStorageTypeCredentialsJSON
@@ -150,7 +155,8 @@ func resourceProjectFeatureVersionedSettingsUpdate(d *schema.ResourceData, meta 
 		}
 	}
 	if d.HasChange("enabled") {
-		vcsFeature.Options.Enabled = d.Get("enabled").(bool)
+		v, _, _ := nullable.Bool(d.Get("enabled").(string)).Value()
+		vcsFeature.Options.Enabled = v
 	}
 	if d.HasChange("format") {
 		vcsFeature.Options.Format = api.VersionedSettingsFormat(d.Get("format").(string))
@@ -194,7 +200,7 @@ func resourceProjectFeatureVersionedSettingsRead(d *schema.ResourceData, meta in
 	}
 
 	d.Set("build_settings", string(vcsFeature.Options.BuildSettings))
-	d.Set("enabled", vcsFeature.Options.Enabled)
+	d.Set("enabled", strconv.FormatBool(vcsFeature.Options.Enabled))
 	d.Set("format", string(vcsFeature.Options.Format))
 	d.Set("project_id", projectId)
 	d.Set("show_changes", vcsFeature.Options.ShowChanges)
