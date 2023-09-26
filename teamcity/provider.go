@@ -19,6 +19,7 @@ func Provider() *schema.Provider {
 			"teamcity_feature_commit_status_publisher":    resourceFeatureCommitStatusPublisher(),
 			"teamcity_group":                              resourceGroup(),
 			"teamcity_project":                            resourceProject(),
+			"teamcity_project_feature_slack_notifier":     resourceProjectFeatureSlackConnection(),
 			"teamcity_project_feature_versioned_settings": resourceProjectFeatureVersionedSettings(),
 			"teamcity_snapshot_dependency":                resourceSnapshotDependency(),
 			"teamcity_vcs_root_git":                       resourceVcsRootGit(),
