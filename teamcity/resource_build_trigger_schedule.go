@@ -3,8 +3,10 @@ package teamcity
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	api "github.com/cvbarros/go-teamcity/teamcity"
+	"github.com/cvbarros/terraform-provider-teamcity/internal/types/nullable"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -77,10 +79,11 @@ func resourceBuildTriggerSchedule() *schema.Resource {
 				Optional: true,
 			},
 			"queue_optimization": {
-				Type:     schema.TypeBool,
-				ForceNew: true,
-				Optional: true,
-				Default:  true,
+				Type:         nullable.TypeNullableBool,
+				ForceNew:     true,
+				Optional:     true,
+				Default:      "true",
+				ValidateFunc: nullable.ValidateTypeStringNullableBool,
 			},
 			"on_all_compatible_agents": {
 				Type:     schema.TypeBool,
@@ -88,16 +91,18 @@ func resourceBuildTriggerSchedule() *schema.Resource {
 				Optional: true,
 			},
 			"with_pending_changes_only": {
-				Type:     schema.TypeBool,
-				ForceNew: true,
-				Optional: true,
-				Default:  true,
+				Type:         nullable.TypeNullableBool,
+				ForceNew:     true,
+				Optional:     true,
+				Default:      "true",
+				ValidateFunc: nullable.ValidateTypeStringNullableBool,
 			},
 			"promote_watched_build": {
-				Type:     schema.TypeBool,
-				ForceNew: true,
-				Optional: true,
-				Default:  true,
+				Type:         nullable.TypeNullableBool,
+				ForceNew:     true,
+				Optional:     true,
+				Default:      "true",
+				ValidateFunc: nullable.ValidateTypeStringNullableBool,
 			},
 			"only_if_watched_changes": {
 				Type:     schema.TypeBool,
@@ -235,16 +240,22 @@ func expandTriggerScheduleOptions(d *schema.ResourceData) (*api.TriggerScheduleO
 	opt := api.NewTriggerScheduleOptions()
 
 	if v, ok := d.GetOk("queue_optimization"); ok {
-		opt.QueueOptimization = v.(bool)
+		if v, null, _ := nullable.Bool(v.(string)).Value(); !null {
+			opt.QueueOptimization = v
+		}
 	}
 	if v, ok := d.GetOk("on_all_compatible_agents"); ok {
 		opt.BuildOnAllCompatibleAgents = v.(bool)
 	}
 	if v, ok := d.GetOk("with_pending_changes_only"); ok {
-		opt.BuildWithPendingChangesOnly = v.(bool)
+		if v, null, _ := nullable.Bool(v.(string)).Value(); !null {
+			opt.BuildWithPendingChangesOnly = v
+		}
 	}
 	if v, ok := d.GetOk("promote_watched_build"); ok {
-		opt.PromoteWatchedBuild = v.(bool)
+		if v, null, _ := nullable.Bool(v.(string)).Value(); !null {
+			opt.PromoteWatchedBuild = v
+		}
 	}
 	if v, ok := d.GetOk("enforce_clean_checkout"); ok {
 		opt.EnforceCleanCheckout = v.(bool)
@@ -270,9 +281,9 @@ func expandTriggerScheduleOptions(d *schema.ResourceData) (*api.TriggerScheduleO
 
 func flattenTriggerScheduleOptions(dt *api.TriggerScheduleOptions) map[string]interface{} {
 	out := make(map[string]interface{})
-	out["queue_optimization"] = dt.QueueOptimization
-	out["promote_watched_build"] = dt.PromoteWatchedBuild
-	out["with_pending_changes_only"] = dt.BuildWithPendingChangesOnly
+	out["queue_optimization"] = strconv.FormatBool(dt.QueueOptimization)
+	out["promote_watched_build"] = strconv.FormatBool(dt.PromoteWatchedBuild)
+	out["with_pending_changes_only"] = strconv.FormatBool(dt.BuildWithPendingChangesOnly)
 	out["revision"] = dt.RevisionRule
 	out["watched_branch"] = dt.RevisionRuleBuildBranch
 

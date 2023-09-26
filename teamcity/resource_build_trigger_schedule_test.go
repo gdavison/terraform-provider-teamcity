@@ -1,10 +1,12 @@
 package teamcity_test
 
 import (
+	"errors"
 	"testing"
 
 	api "github.com/cvbarros/go-teamcity/teamcity"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccTeamcityBuildTriggerSchedule_Daily(t *testing.T) {
@@ -165,7 +167,7 @@ func TestAccTeamcityBuildTriggerSchedule_Options(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: TestAccBuildTriggerScheduleOptions,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckBuildConfigExists("teamcity_build_config.config", &bc),
 					testAccCheckBuildConfigExists("teamcity_build_config.watched", &watched),
 					testAccCheckTeamcityBuildTriggerExists(resName, &bc.ID, &out, true),
@@ -189,7 +191,7 @@ func TestAccTeamcityBuildTriggerSchedule_Options(t *testing.T) {
 
 func TestAccTeamcityBuildTriggerSchedule_OptionsUpdated(t *testing.T) {
 	resName := "teamcity_build_trigger_schedule.test"
-	var out api.Trigger
+	var out1, out2 api.Trigger
 	var bc api.BuildType
 	var watched api.BuildType
 
@@ -200,10 +202,10 @@ func TestAccTeamcityBuildTriggerSchedule_OptionsUpdated(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: TestAccBuildTriggerScheduleOptions,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckBuildConfigExists("teamcity_build_config.config", &bc),
 					testAccCheckBuildConfigExists("teamcity_build_config.watched", &watched),
-					testAccCheckTeamcityBuildTriggerExists(resName, &bc.ID, &out, true),
+					testAccCheckTeamcityBuildTriggerExists(resName, &bc.ID, &out1, true),
 					resource.TestCheckResourceAttr(resName, "schedule", "daily"),
 					resource.TestCheckResourceAttr(resName, "queue_optimization", "true"),
 					resource.TestCheckResourceAttr(resName, "on_all_compatible_agents", "true"),
@@ -220,10 +222,11 @@ func TestAccTeamcityBuildTriggerSchedule_OptionsUpdated(t *testing.T) {
 			},
 			resource.TestStep{
 				Config: TestAccBuildTriggerScheduleOptionsUpdated,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckBuildConfigExists("teamcity_build_config.config", &bc),
 					testAccCheckBuildConfigExists("teamcity_build_config.watched2", &watched),
-					testAccCheckTeamcityBuildTriggerExists(resName, &bc.ID, &out, true),
+					testAccCheckTeamcityBuildTriggerExists(resName, &bc.ID, &out2, true),
+					testAccCheckBuildTriggerRecreated(&out1, &out2),
 					resource.TestCheckResourceAttr(resName, "schedule", "daily"),
 					resource.TestCheckResourceAttr(resName, "queue_optimization", "false"),
 					resource.TestCheckResourceAttr(resName, "on_all_compatible_agents", "false"),
@@ -266,6 +269,15 @@ func TestAccTeamcityBuildTriggerSchedule_DefaultOptions(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testAccCheckBuildTriggerRecreated(x, y *api.Trigger) resource.TestCheckFunc {
+	return func(_ *terraform.State) error {
+		if (*x).ID() == (*y).ID() {
+			return errors.New("Build Trigger not recreated")
+		}
+		return nil
+	}
 }
 
 const TestAccBuildTriggerScheduleDaily = `
