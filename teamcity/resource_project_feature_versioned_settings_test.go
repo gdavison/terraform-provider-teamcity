@@ -20,10 +20,17 @@ func TestAccTeamcityProjectVersionedSettings_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccTeamCityProjectVersionedSettingsBasicConfig("PREFER_VCS", "kotlin"),
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTeamCityProjectVersionedSettingsExists(resName),
 					resource.TestCheckResourceAttr(resName, "build_settings", "PREFER_VCS"),
 					resource.TestCheckResourceAttr(resName, "format", "kotlin"),
+					resource.TestCheckResourceAttr(resName, "project_id", "TestProject"),
+					resource.TestCheckResourceAttr(resName, "vcs_root_id", "TestProject_Application"),
+					resource.TestCheckResourceAttr(resName, "context_parameters.%", "0"),
+					resource.TestCheckResourceAttr(resName, "credentials_storage_type", "scrambled"),
+					resource.TestCheckResourceAttr(resName, "enabled", "true"),
+					resource.TestCheckResourceAttr(resName, "show_changes", "false"),
+					resource.TestCheckResourceAttr(resName, "use_relative_ids", "false"),
 				),
 			},
 			{
@@ -75,6 +82,30 @@ func TestAccTeamcityProjectVersionedSettings_Update(t *testing.T) {
 					testAccCheckTeamCityProjectVersionedSettingsExists(resName),
 					resource.TestCheckResourceAttr(resName, "build_settings", "PREFER_VCS"),
 					resource.TestCheckResourceAttr(resName, "format", "xml"),
+				),
+			},
+			{
+				ResourceName:      resName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func TestAccTeamcityProjectVersionedSettings_Disabled(t *testing.T) {
+	resName := "teamcity_project_feature_versioned_settings.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckTeamCityProjectVersionedSettingsDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTeamCityProjectVersionedSettingsDisabledConfig(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckTeamCityProjectVersionedSettingsExists(resName),
+					resource.TestCheckResourceAttr(resName, "enabled", "false"),
 				),
 			},
 			{
@@ -236,6 +267,20 @@ resource "teamcity_project_feature_versioned_settings" "test" {
   format         = "%s"
 }
 `, testAccTeamCityProjectVersionedSettingsTemplate, buildSettings, format)
+}
+
+func testAccTeamCityProjectVersionedSettingsDisabledConfig() string {
+	return fmt.Sprintf(`
+%s
+
+resource "teamcity_project_feature_versioned_settings" "test" {
+  project_id     = teamcity_project.test.id
+  vcs_root_id    = teamcity_vcs_root_git.test.id
+  build_settings = "PREFER_VCS"
+  format         = "kotlin"
+  enabled        = false
+}
+`, testAccTeamCityProjectVersionedSettingsTemplate)
 }
 
 func testAccTeamCityProjectVersionedSettingsContextParametersConfig(buildSettings string, format string) string {

@@ -41,7 +41,7 @@ func TestAccVcsRootGit_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			resource.TestStep{
 				Config: testAccVcsRootGitBasic,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckVcsRootGitExists(resName, &vcs),
 					resource.TestCheckResourceAttr(resName, "name", "application"),
 					resource.TestCheckResourceAttr(resName, "fetch_url", "https://github.com/cvbarros/terraform-provider-teamcity"),
@@ -166,7 +166,7 @@ func TestAccVcsRootGit_AgentSettings(t *testing.T) {
 		"clean_policy":       "ON_BRANCH_CHANGE",
 		"git_path":           "/usr/bin/git",
 		"clean_files_policy": "IGNORED_ONLY",
-		"use_mirrors":        "true",
+		"use_mirrors":        "false",
 	}
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -182,7 +182,7 @@ func TestAccVcsRootGit_AgentSettings(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "agent.0.git_path", "/usr/bin/git"),
 					resource.TestCheckResourceAttr(resourceName, "agent.0.clean_policy", "branch_change"),
 					resource.TestCheckResourceAttr(resourceName, "agent.0.clean_files_policy", "ignored_only"),
-					resource.TestCheckResourceAttr(resourceName, "agent.0.use_mirrors", "true"),
+					resource.TestCheckResourceAttr(resourceName, "agent.0.use_mirrors", "false"),
 				),
 			},
 		},
@@ -393,7 +393,7 @@ resource "teamcity_vcs_root_git" "git_test" {
 		git_path = "/usr/bin/git"
 		clean_policy = "branch_change"
 		clean_files_policy = "ignored_only"
-		use_mirrors = true
+		use_mirrors = false
 	}
 }
 `

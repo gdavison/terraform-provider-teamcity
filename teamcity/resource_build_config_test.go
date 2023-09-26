@@ -23,12 +23,21 @@ func TestAccBuildConfig_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: TestAccBuildConfigBasic,
-				Check: resource.ComposeTestCheckFunc(
+				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckBuildConfigExists(resName, &bc),
 					resource.TestCheckResourceAttr(resName, "name", "build config test"),
 					resource.TestCheckResourceAttr(resName, "description", "build config test desc"),
 					resource.TestCheckResourceAttr(resName, "project_id", "BuildConfigProjectTest"),
 					resource.TestCheckResourceAttr(resName, "is_template", "false"),
+					resource.TestCheckResourceAttr(resName, "settings.#", "1"),
+					resource.TestCheckResourceAttr(resName, "settings.0.allow_personal_builds", "true"),
+					resource.TestCheckResourceAttr(resName, "settings.0.artifact_paths.#", "0"),
+					resource.TestCheckResourceAttr(resName, "settings.0.build_counter", "0"),
+					resource.TestCheckResourceAttr(resName, "settings.0.build_number_format", "2.0.%build.counter%"),
+					resource.TestCheckResourceAttr(resName, "settings.0.concurrent_limit", "0"),
+					resource.TestCheckResourceAttr(resName, "settings.0.configuration_type", "REGULAR"),
+					resource.TestCheckResourceAttr(resName, "settings.0.detect_hanging", "true"),
+					resource.TestCheckResourceAttr(resName, "settings.0.status_widget", "false"),
 				),
 			},
 		},
